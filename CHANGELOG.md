@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
+### Added
+- Identity, Calculation, Geometry, and View classes refactored from autostorage and automol.
+- Element data refactored from automol.
+- Basic manipulations / property determinations on Geometry classes.
+- Algorithm structures for determing identities from Geometries and Geometries from identities.
+- Boilerplate for mapping object conversion methods.
+- Optional dependency on qcdata for object conversions.
 
 ## [0.0.1] - 2026-06-08
 
