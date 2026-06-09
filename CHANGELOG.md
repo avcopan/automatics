@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
+
+## [0.0.2] - 2026-06-09
 ### Added
 - Identity, Calculation, Geometry, and View classes refactored from autostorage and automol.
 - Element data refactored from automol.
