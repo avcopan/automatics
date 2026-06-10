@@ -14,9 +14,15 @@ from pyparsing import pyparsing_common as ppc
 from rdkit import Chem
 from rdkit.Chem import Mol, rdDetermineBonds
 
-from .. import element, rd
-from ..types import CoordinatesField
-from .mapper import convert_from, register_mapper
+from . import element, rd
+from .utils.exceptions import GeometryConversionError, HashGenerationError
+from .utils.types import CoordinatesField
+
+_QC_SPEC = find_spec("qcdata")
+_QC_AVAILABLE = _QC_SPEC is not None
+
+if _QC_AVAILABLE or TYPE_CHECKING:
+    from qcdata import Structure
 
 RADIANS_TO_DEGREES = pint.Quantity("radian").m_as("degree")
 DEGREES_TO_RADIANS = 1 / RADIANS_TO_DEGREES
@@ -141,7 +147,7 @@ def view(
         py3Dmol view.
     """
     view = py3Dmol.view(width=400, height=400) if view is None else view
-    xyz_str = convert_from(geo, target_type=str)
+    xyz_str = xyz_block(geo)
     view.addModel(xyz_str, "xyz")
     view.setStyle({"stick": {}, "sphere": {"scale": 0.3}})
     if label:
@@ -159,7 +165,6 @@ def view(
     return view
 
 
-@register_mapper(inp_type=Geometry, out_type=Mol)
 def rdkit_mol(geo: Geometry) -> Mol:
     """
     Instantiate an rdkit Mol from a Geometry.
@@ -194,31 +199,18 @@ def rdkit_mol(geo: Geometry) -> Mol:
     return conn_mol
 
 
-@register_mapper(inp_type=Mol, out_type=Geometry)
 def from_rdkit_mol(mol: Mol) -> Geometry:
     """
-    Instantiate a Geometry from an RDKit molecule.
+    Instantiate a Geometry from an rdkit molecule.
 
     Parameters
     ----------
     mol
-        RDKit molecule.
+        `rdkit.Chem.Mol` instance
 
     Returns
     -------
-        Geometry.
-
-    Example
-    -------
-    ```
-    from rdkit import Chem
-    from automatics.models import Geometry, geom, convert_from
-
-    mol = Chem.MolFromSmiles("O")
-
-    geo = geom.from_rdkit_mol(mol)
-    # equivalently,
-    geo = convert_from(mol, Geometry)
+        `Geometry` instance.
     """
     if not rd.mol.has_coordinates(mol):
         mol = rd.mol.add_coordinates(mol)
@@ -231,7 +223,6 @@ def from_rdkit_mol(mol: Mol) -> Geometry:
     )
 
 
-@register_mapper(inp_type=Geometry, out_type=str)
 def xyz_block(geo: Geometry) -> str:
     """
     Return geometry as formatted xyz block.
@@ -258,8 +249,9 @@ SYMBOL = pp.Combine(CHAR + pp.Opt(CHAR))
 XYZ_LINE = SYMBOL + pp.Group(ppc.fnumber * 3) + pp.Suppress(... + pp.LineEnd())
 
 
-@register_mapper(inp_type=str, out_type=Geometry)
-def from_xyz_block(xyz_str: str) -> Geometry:
+def from_xyz_block(
+    xyz_str: str, *, charge: int | None = None, spin: int | None = None
+) -> Geometry:
     """
     Instantiate Geometry from formatted xyz block.
 
@@ -267,6 +259,10 @@ def from_xyz_block(xyz_str: str) -> Geometry:
     ----------
     geo_str
         Formatted xyz block.
+    charge
+        Total molecular charge.
+    spin
+        Number of unpaired electrons, i.e. two times the spin quantum number (``2S``).
 
     Returns
     -------
@@ -283,20 +279,10 @@ def from_xyz_block(xyz_str: str) -> Geometry:
         *[XYZ_LINE.parse_string(line).as_list() for line in lines], strict=True
     )
     return Geometry(
-        symbols=list(symbs), coordinates=np.array(coords), charge=None, spin=None
+        symbols=list(symbs), coordinates=np.array(coords), charge=charge, spin=spin
     )
 
 
-_QC_SPEC = find_spec("qcdata")
-_QC_AVAILABLE = _QC_SPEC is not None
-
-if _QC_AVAILABLE or TYPE_CHECKING:
-    from qcdata import Structure
-
-struc_type = Structure if _QC_AVAILABLE else "Structure"
-
-
-@register_mapper(inp_type=Geometry, out_type=struc_type)
 def qc_structure(geo: Geometry) -> Structure:
     """Instantiate a qc Structure from a Geometry."""
     if not _QC_AVAILABLE:
@@ -315,7 +301,6 @@ def qc_structure(geo: Geometry) -> Structure:
     )
 
 
-@register_mapper(inp_type=struc_type, out_type=Geometry)
 def to_qc_structure(struc: Structure) -> Geometry:
     """Instantiate Geometry from qc Structure."""
     if not _QC_AVAILABLE:
@@ -328,17 +313,3 @@ def to_qc_structure(struc: Structure) -> Geometry:
         charge=struc.charge,
         spin=struc.multiplicity - 1,
     )
-
-
-class GeometryConversionError(Exception):
-    """Raise an error when Geometry conversion is not successful."""
-
-    def __init__(self, message: str) -> None:
-        super().__init__(message)
-
-
-class HashGenerationError(Exception):
-    """Raise an error when object hashing is not successful."""
-
-    def __init__[T](self, message: str, hashable_instance: T) -> None:
-        super().__init__(message, hashable_instance)

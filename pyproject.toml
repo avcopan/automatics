@@ -1,9 +1,18 @@
 [project]
 name = "automatics"
 version = "0.0.2"
-authors = [{name = "Andreas V. Copan", email = "avcopan@uga.edu"}]
+authors = [
+    {name = "Andreas V. Copan", email = "avcopan@uga.edu"},
+    {name = "Troy N. Smith", email = "troy.smith@uga.edu"}
+]
 requires-python = ">= 3.12"
-dependencies = []
+dependencies = [
+    "numpy>=2.0",
+    "pint>=0.24",
+    "py3dmol>=2.5",
+    "pydantic>=2.5",
+    "rdkit>=2025",
+]
 
 [build-system]
 build-backend = "uv_build"
@@ -20,7 +29,6 @@ exclude = [
 select = ["ALL"]
 ignore = [
     "COM812",   # missing trailing comma (handled by format)
-    "RUF022",   # `__all__` is not sorted
     "TID252",   # relative import
     "D203",     # confict: incorrect blank line before class (uses D211 instead)
     "D213",     # conflict: multi-line summary second line (uses D212 instead)
@@ -54,9 +62,11 @@ root_package = "automatics"
 name = "Module Layering"
 type = "layers"
 layers = [
-    "automatics.models",
+    "automatics.ident | automatics.view",
+    "automatics.calc | automatics.geom",
     "automatics.rd",
     "automatics.element",
+    "automatics.utils",
 ]
 
 # Pytest configurations
@@ -78,4 +88,4 @@ source = ["automatics"]
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
-fail_under = 70
+fail_under = 80

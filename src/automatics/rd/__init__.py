@@ -3,4 +3,4 @@
 from . import mol
 from .mol import Mol
 
-__all__ = ["mol", "Mol"]
+__all__ = ["Mol", "mol"]

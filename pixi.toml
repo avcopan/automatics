@@ -5,12 +5,11 @@ preview = ["pixi-build"]
 
 [dependencies]
 automatics = { path = "." }
-rdkit = ">=2026.3.3,<2027"
 numpy = ">=2.4.6,<3"
 pydantic = ">=2.13.4,<3"
 pint = ">=0.25.3,<0.26"
 py3dmol = ">=2.5.4,<3"
-scipy = ">=1.17.1,<2"
+rdkit = ">=2026.3.3,<2027"
 
 [package]
 name = "automatics"

@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
 
-from ..utils import hash_from_dict
+from .utils.misc import hash_from_dict
 
 CalculationDict = dict[str, Any]
 
@@ -57,7 +57,7 @@ class Calculation(BaseModel):
     program: str
     calc_type: str
     method: str
-    basis: str | None = Field(default=None)
+    basis: str | None = None
     input_data: dict[str, Any] = Field(default_factory=dict)
     provenance_source: str | None = None
     provenance: dict[str, Any] = Field(default_factory=dict)

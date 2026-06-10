@@ -7,7 +7,7 @@ from rdkit import Chem
 from rdkit.Chem import Descriptors, Mol, rdDetermineBonds
 from rdkit.Chem.rdDistGeom import EmbedMolecule
 
-from ..types import FloatArray
+from ..utils.types import FloatArray
 
 
 def from_smiles(smi: str, *, with_coords: bool = False) -> Mol:
@@ -32,6 +32,22 @@ def from_smiles(smi: str, *, with_coords: bool = False) -> Mol:
     if with_coords:
         add_coordinates(mol, in_place=True)
     return mol
+
+
+def smiles(mol: Mol) -> str:
+    """
+    Get standard SMILES string from Mol.
+
+    Parameters
+    ----------
+    mol
+        RDKit molecule object.
+
+    Returns
+    -------
+        InChI identifier.
+    """
+    return Chem.MolToSmiles(mol, isomericSmiles=False)
 
 
 def from_inchi(inchi: str, *, with_coords: bool = False) -> Mol:
@@ -76,7 +92,7 @@ def inchi(mol: Mol) -> str:
 
 def from_xyz_block(xyz_block: str) -> Mol:
     """
-    Get RDKit molecule from Geometry.
+    Get RDKit molecule from XYZ.
 
     Parameters
     ----------
@@ -91,6 +107,22 @@ def from_xyz_block(xyz_block: str) -> Mol:
     conn_mol = Chem.Mol(raw_mol)
     rdDetermineBonds.DetermineConnectivity(conn_mol)
     return conn_mol
+
+
+def xyz_block(mol: Mol) -> str:
+    """
+    Get formatted xyz block from rdkit molecule.
+
+    Parameters
+    ----------
+    mol
+        `rdkit.Chem.Mol` instance.
+
+    Returns
+    -------
+    Formatted xyz block.
+    """
+    return Chem.MolToXYZBlock(mol)
 
 
 def symbols(mol: Mol) -> list[str]:

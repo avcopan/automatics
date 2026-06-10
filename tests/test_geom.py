@@ -2,10 +2,9 @@
 
 import numpy as np
 import pytest
-from rdkit.Chem import Mol
 
-from automatics import Geometry, convert_from, geom
-from automatics.models.geom import GeometryConversionError, HashGenerationError
+from automatics import Geometry, geom
+from automatics.geom import GeometryConversionError, HashGenerationError
 
 
 @pytest.fixture
@@ -47,16 +46,16 @@ def test__deterministic_hash(water: Geometry) -> None:
 
 def test__rdkit_roundtrip(water: Geometry) -> None:
     """Test Geometry to mol roundtrip."""
-    mol = convert_from(water, target_type=Mol)
-    geo_rt = convert_from(mol, target_type=Geometry)
+    mol = geom.rdkit_mol(water)
+    geo_rt = geom.from_rdkit_mol(mol)
 
     assert water.hash == geo_rt.hash
 
 
-def test__string_roundtrip(water: Geometry) -> None:
+def test__xyz_roundtrip(water: Geometry) -> None:
     """Test Geometry to xyz string roundtrip."""
-    xyz = convert_from(water, target_type=str)
-    geo_rt = convert_from(xyz, target_type=Geometry)
+    xyz = geom.xyz_block(water)
+    geo_rt = geom.from_xyz_block(xyz)
 
     assert water.symbols == geo_rt.symbols
     assert np.allclose(water.coordinates, geo_rt.coordinates)
