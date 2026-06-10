@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
+### Added
+- geom.xyz_file() to write Geometry instances to an xyz formatted file.
+- geom.from_xyz_file() to instantiate a Geometry from an xyz formatted file.
+
+### Fixed
+- Improve test coverage.
+
+### Changed
+- Rename Calculation to Model.
+    
+### Removed
+- Provenance attributes on the Model (previously Calculation) class.
+- Model (previously Calculation) hashing.
 
 ## [0.0.3] - 2026-06-10
 

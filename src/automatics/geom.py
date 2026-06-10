@@ -3,6 +3,7 @@
 import contextlib
 import hashlib
 from importlib.util import find_spec
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -244,6 +245,21 @@ def xyz_block(geo: Geometry) -> str:
     return "\n".join(lines)
 
 
+def xyz_file(geo: Geometry, *, out: str | Path) -> None:
+    """
+    Return geometry as formatted xyz block.
+
+    Parameters
+    ----------
+    geo
+        Geometry object.
+    out
+        Output path.
+    """
+    out = out if isinstance(out, Path) else Path(out)
+    out.write_text(xyz_block(geo))
+
+
 CHAR = pp.Char(pp.alphas)
 SYMBOL = pp.Combine(CHAR + pp.Opt(CHAR))
 XYZ_LINE = SYMBOL + pp.Group(ppc.fnumber * 3) + pp.Suppress(... + pp.LineEnd())
@@ -281,6 +297,30 @@ def from_xyz_block(
     return Geometry(
         symbols=list(symbs), coordinates=np.array(coords), charge=charge, spin=spin
     )
+
+
+def from_xyz_file(
+    file_path: str | Path, *, charge: int | None = None, spin: int | None = None
+) -> Geometry:
+    """
+    Return geometry as formatted xyz block.
+
+    Parameters
+    ----------
+    file_path : str | Path
+        Path to xyz file.
+    charge
+        Total molecular charge.
+    spin
+        Number of unpaired electrons, i.e. two times the spin quantum number (``2S``).
+
+    Returns
+    -------
+    Geometry
+    """
+    file_path = file_path if isinstance(file_path, Path) else Path(file_path)
+
+    return from_xyz_block(file_path.read_text(), charge=charge, spin=spin)
 
 
 def qc_structure(geo: Geometry) -> Structure:

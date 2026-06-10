@@ -3,9 +3,17 @@
 __version__ = "0.0.3"
 
 from . import element, geom, rd
-from .calc import Calculation
+from .calc import Model
 from .geom import Geometry
 from .ident import Identity
 from .view import View
 
-__all__ = ["Calculation", "Geometry", "Identity", "View", "element", "geom", "rd"]
+__all__ = [
+    "Geometry",
+    "Identity",
+    "Model",
+    "View",
+    "element",
+    "geom",
+    "rd",
+]
