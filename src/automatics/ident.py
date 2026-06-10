@@ -8,13 +8,13 @@ from typing import TYPE_CHECKING, Any, ClassVar, Self
 
 from pydantic import BaseModel, model_validator
 from rdkit import Chem
-from rdkit.Chem import Mol
 
-from .geom import Geometry
-from .mapper import convert_from
+from . import geom
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from .geom import Geometry
 
 
 @dataclass
@@ -53,7 +53,8 @@ class AlgorithmFns(ABC):
     @staticmethod
     def geometry_fn(value: str) -> Geometry:
         """Instantiate a Geometry from an identifier string."""
-        raise NotImplementedError
+        msg = f"Conversion of {value} to Geometry not implemented."
+        raise NotImplementedError(msg)
 
 
 class AlgorithmRegistry:
@@ -158,7 +159,7 @@ class RDKitInChI(AlgorithmFns):
     @staticmethod
     def identity_fn(geo: Geometry) -> str:
         """Generate InChI from Geometry with RDKit."""
-        mol = convert_from(geo, target_type=Mol)
+        mol = geom.rdkit_mol(geo)
         mol_block = Chem.rdmolfiles.MolToMolBlock(mol)
         return Chem.inchi.MolBlockToInchi(mol_block)
 
@@ -167,7 +168,7 @@ class RDKitInChI(AlgorithmFns):
         """Generate Geometry from InChI with RDKit."""
         mol = Chem.MolFromInchi(value, sanitize=True, removeHs=False)
         mol = Chem.AddHs(mol)
-        return convert_from(mol, target_type=Geometry)
+        return geom.from_rdkit_mol(mol)
 
 
 @AlgorithmRegistry.register(name="rdkit smiles", kind="stereoisomer")
@@ -177,7 +178,7 @@ class RDKitSMILES(AlgorithmFns):
     @staticmethod
     def identity_fn(geo: Geometry) -> str:
         """Generate SMILES from Geometry with RDKit."""
-        mol = convert_from(geo, target_type=Mol)
+        mol = geom.rdkit_mol(geo)
         return Chem.MolToSmiles(Chem.RemoveAllHs(mol))
 
     @staticmethod
@@ -185,4 +186,4 @@ class RDKitSMILES(AlgorithmFns):
         """Generate Geometry from SMILES with RDKit."""
         mol = Chem.MolFromSmiles(value)
         mol = Chem.AddHs(mol)
-        return convert_from(mol, target_type=Geometry)
+        return geom.from_rdkit_mol(mol)

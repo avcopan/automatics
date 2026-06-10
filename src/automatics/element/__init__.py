@@ -10,6 +10,8 @@ from .core import (
     mass_number,
     number,
     nvalence,
+    period,
+    shell_capacity,
     symbol,
 )
 
@@ -21,7 +23,9 @@ __all__ = [
     "group",
     "mass",
     "mass_number",
-    "nvalence",
     "number",
+    "nvalence",
+    "period",
+    "shell_capacity",
     "symbol",
 ]
