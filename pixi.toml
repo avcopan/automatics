@@ -13,7 +13,7 @@ rdkit = ">=2026.3.3,<2027"
 
 [package]
 name = "automatics"
-version = "0.0.3"
+version = "0.0.4"
 
 [package.build]
 backend = { name = "pixi-build-python", version = "*" }

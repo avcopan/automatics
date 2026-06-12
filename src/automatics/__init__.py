@@ -1,6 +1,6 @@
 """automatics."""
 
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 
 from . import element, geom, rd
 from .calc import Model
